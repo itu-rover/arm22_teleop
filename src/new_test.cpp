@@ -7,14 +7,20 @@
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <geometry_msgs/TwistStamped.h>
 
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <std_srvs/Trigger.h>
+
 const std::string PLANNING_GROUP = "manipulator";
 
-double threshold = 0.2;
+double threshold = 0.8;
 class Interface{
     private:
         ros::NodeHandle nh_;
         ros::Publisher pub_;
         ros::Subscriber sub_;
+        ros::ServiceServer service_;
 
         std::string ee_link_name_;
 
@@ -39,7 +45,38 @@ class Interface{
         std::vector<geometry_msgs::Pose> poses;
         moveit::core::RobotStatePtr current_state;
 
+        geometry_msgs::PoseStamped current_pose;
+        bool fetched_current_pose = false;
+        geometry_msgs::Pose target_pose;
+
+        bool reset_target_position(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &res)
+        {
+            current_pose = move_group_->getCurrentPose(ee_link_name_);
+            current_state->copyJointGroupPositions(joint_model_group_, joint_group_positions);
+            current_joint_positions = move_group_->getCurrentJointValues(); //15ms
+            
+            
+            trajectory_msgs::JointTrajectory traj;
+            // traj.joint_names = {"joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6"};
+
+            traj.joint_names = {"axis_1", "axis_2", "axis_3", "axis_4", "axis_5", "axis_6"};
+
+            trajectory_msgs::JointTrajectoryPoint pts;
+            pts.positions = current_joint_positions;
+            pts.time_from_start = ros::Duration(0.005);
+
+            traj.points.push_back(pts);
+
+            pub_.publish(traj);
+
+            res.success = true;
+            res.message = "success";
+            return true;
+        }
+
         void callback(const geometry_msgs::TwistStampedConstPtr &data){
+            if (!fetched_current_pose) return;
+
             using namespace std::chrono;
             auto current_pose = move_group_->getCurrentPose(ee_link_name_); //15ms
             geometry_msgs::Pose start_pose2;
@@ -50,7 +87,7 @@ class Interface{
 
             current_joint_positions = move_group_->getCurrentJointValues(); //15ms
 
-            poses.push_back(start_pose2);
+            poses.push_back(current_pose.pose);
             // bool ik_solution_found = solver_instance_->getPositionIK(poses, current_joint_positions, solutions, ik_res, options);
             auto t3 = high_resolution_clock::now();
             auto t4 = high_resolution_clock::now();
@@ -103,7 +140,7 @@ class Interface{
             //     return;
             // }
 
-            bool ik_has_solution = current_state->setFromIK(joint_model_group_, start_pose2);
+            bool ik_has_solution = current_state->setFromIK(joint_model_group_, current_pose.pose);
             auto ms_int = duration_cast<milliseconds>(high_resolution_clock::now() - t1);
             t1 = high_resolution_clock::now();
             ROS_INFO("%ld", ms_int.count());
@@ -119,6 +156,12 @@ class Interface{
             current_state->copyJointGroupPositions(joint_model_group_, joint_group_positions);
 
 
+            ROS_INFO_NAMED("tutorial", "Current position:  %lf %lf %lf %lf %lf %lf",   current_joint_positions[0],
+                                                                                                            current_joint_positions[1],
+                                                                                                            current_joint_positions[2],
+                                                                                                            current_joint_positions[3],
+                                                                                                            current_joint_positions[4],
+                                                                                                            current_joint_positions[5]);
             ROS_INFO_NAMED("tutorial", "Solution found from single function is: %lf %lf %lf %lf %lf %lf",   joint_group_positions[0],
                                                                                                             joint_group_positions[1],
                                                                                                             joint_group_positions[2],
@@ -165,13 +208,16 @@ class Interface{
         
         ee_link_name_ = move_group_->getEndEffectorLink();
 
+        current_pose = move_group_->getCurrentPose(ee_link_name_); //15ms
+        fetched_current_pose = true;
+
         current_state = move_group_->getCurrentState();
         ROS_INFO_NAMED("tutorial", "movegroup connected!");
         pub_ = nh_.advertise<trajectory_msgs::JointTrajectory>("/manipulator_controller/command/", 10);
 
         ROS_INFO_NAMED("tutorial", "publisher connected!");
         sub_ = nh_.subscribe("/servo_server/delta_twist_cmds", 10, &Interface::callback, this);
-        
+        service_ = nh_.advertiseService("/servo_server/reset_target", &Interface::reset_target_position, this);
         ROS_INFO_NAMED("tutorial", "usbscriber conntected!");
 
         ROS_INFO_NAMED("tutorial", "Planning frame: %s", move_group_->getPlanningFrame().c_str());
