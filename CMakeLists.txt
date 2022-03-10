@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(arm22_movegroup_test)
+project(arm22_teleop)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -106,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES arm22_movegroup_test
+#  LIBRARIES arm22_teleop
 #  CATKIN_DEPENDS moveit_core moveit_ros_planning moveit_ros_planning_interface moveit_visual_tools roscpp
 #  DEPENDS system_lib
 )
@@ -124,7 +124,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/arm22_movegroup_test.cpp
+#   src/${PROJECT_NAME}/arm22_teleop.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -195,7 +195,7 @@ scripts/teleop.py
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_arm22_movegroup_test.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_arm22_teleop.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
