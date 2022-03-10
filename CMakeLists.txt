@@ -141,9 +141,9 @@ target_link_libraries(test_node
   ${catkin_LIBRARIES}
 )
 
-add_executable(new_test_node src/new_test.cpp)
+add_executable(teleop_server src/teleop_server.cpp)
 
-target_link_libraries(new_test_node
+target_link_libraries(teleop_server
   ${catkin_LIBRARIES}
 )
 

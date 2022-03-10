@@ -264,7 +264,7 @@ class Interface{
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "move_group_interface_tutorial");
+    ros::init(argc, argv, "teleop_server");
 
     Interface();
 
