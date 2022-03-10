@@ -78,12 +78,41 @@ class Interface{
             if (!fetched_current_pose) return;
 
             using namespace std::chrono;
-            auto current_pose = move_group_->getCurrentPose(ee_link_name_); //15ms
-            geometry_msgs::Pose start_pose2;
-            start_pose2.orientation.w = 1.0;
-            start_pose2.position.x = current_pose.pose.position.x + data->twist.linear.x;
-            start_pose2.position.y = current_pose.pose.position.y + data->twist.linear.y;
-            start_pose2.position.z = current_pose.pose.position.z + data->twist.linear.z;
+            current_pose.pose.orientation.w = 1.0;
+            current_pose.pose.position.x = current_pose.pose.position.x + data->twist.linear.x;
+            current_pose.pose.position.y = current_pose.pose.position.y + data->twist.linear.y;
+            current_pose.pose.position.z = current_pose.pose.position.z + data->twist.linear.z;
+
+            tf2::Quaternion current_q;
+            tf2::convert(current_pose.pose.orientation, current_q);
+
+            tf2::Quaternion rot_q;
+            rot_q.setRPY(data->twist.angular.x, data->twist.angular.y, data->twist.angular.z);
+
+            static tf2_ros::TransformBroadcaster br;
+            geometry_msgs::TransformStamped transformStamped;
+            
+            transformStamped.header.stamp = ros::Time::now();
+            transformStamped.header.frame_id = "world";
+            transformStamped.child_frame_id = "test";
+            transformStamped.transform.translation.x = current_pose.pose.position.x;
+            transformStamped.transform.translation.y = current_pose.pose.position.y;
+            transformStamped.transform.translation.z = current_pose.pose.position.z;
+            tf2::Quaternion q;
+            q = rot_q*current_q;
+            q.normalize();
+
+            // transformStamped.transform.rotation.x = q.x();
+            // transformStamped.transform.rotation.y = q.y();
+            // transformStamped.transform.rotation.z = q.z();
+            // transformStamped.transform.rotation.w = q.w();
+
+            // tf2::convert(q, current_pose.pose.orientation);
+            transformStamped.transform.rotation.x = 0;
+            transformStamped.transform.rotation.y = 0;
+            transformStamped.transform.rotation.z = 0;
+            transformStamped.transform.rotation.w = 1;
+            br.sendTransform(transformStamped);
 
             current_joint_positions = move_group_->getCurrentJointValues(); //15ms
 
