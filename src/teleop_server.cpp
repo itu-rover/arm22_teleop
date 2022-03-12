@@ -108,10 +108,6 @@ class Interface{
             q = rot_q*current_q;
             q.normalize();
 
-            // transformStamped.transform.rotation.x = q.x();
-            // transformStamped.transform.rotation.y = q.y();
-            // transformStamped.transform.rotation.z = q.z();
-            // transformStamped.transform.rotation.w = q.w();
 
             // tf2::convert(q, current_pose.pose.orientation);
             transformStamped.transform.rotation.x = 0;
@@ -123,62 +119,10 @@ class Interface{
             current_joint_positions = move_group_->getCurrentJointValues(); //15ms
 
             poses.push_back(current_pose.pose);
-            // bool ik_solution_found = solver_instance_->getPositionIK(poses, current_joint_positions, solutions, ik_res, options);
-            auto t3 = high_resolution_clock::now();
-            auto t4 = high_resolution_clock::now();
-            ROS_INFO("y: %ld", duration_cast<milliseconds>(t4 - t3).count());
             
             ROS_INFO_NAMED("tutorial", "FOUND %ld solutions.", solutions.size());
-            // for(auto& solution : solutions){
-            //     ROS_INFO("Solution: ");
-            //     for(auto &val : solution) ROS_INFO("%lf", val);
-            // }
-
-            // if(!ik_solution_found){
-            //     ROS_INFO_NAMED("tutorial", "IK SOLUTION NOT FOUND");
-            //     return;
-            // }
-
-            // std::vector<double> best_solution;
-            // best_solution.reserve(6);
-
-            // bool any_solution_valid = false;
-            // for(int j = 0; j < solutions.size(); j++){
-            //     auto& solution = solutions[j];
-            //     bool current_solution_valid = true;
-            //     ROS_INFO_NAMED("tutorial", "Solution no %d: %lf %lf %lf %lf %lf %lf", j, solution[0],
-            //                                                                             solution[1],
-            //                                                                             solution[2],
-            //                                                                             solution[3],
-            //                                                                             solution[4],
-            //                                                                             solution[5]);
-            //     for(int i=0; i < solution.size(); i++){
-            //         if(std::fabs(solution[i] - current_joint_positions[i]) > threshold){
-            //             ROS_INFO_NAMED("tutorial", "Solution %d not valid.", j);
-            //             current_solution_valid = false;
-            //             break;
-            //         }
-            //     }
-            //     if(current_solution_valid){
-            //         best_solution = solution;
-            //         any_solution_valid = true;
-            //     }
-            // }
-            // ROS_INFO_NAMED("tutorial", "Best solution out of %ld solutions is: %lf %lf %lf %lf %lf %lf", solutions.size(), best_solution[0],
-            //                                                                                                             best_solution[1],
-            //                                                                                                             best_solution[2],
-            //                                                                                                             best_solution[3],
-            //                                                                                                             best_solution[4],
-            //                                                                                                             best_solution[5]);
-            // if(!any_solution_valid) {
-            //     ROS_INFO_NAMED("tutorial", "SOLUTION FOUND BUT NOT VALID");
-            //     return;
-            // }
 
             bool ik_has_solution = current_state->setFromIK(joint_model_group_, current_pose.pose);
-            auto ms_int = duration_cast<milliseconds>(high_resolution_clock::now() - t1);
-            t1 = high_resolution_clock::now();
-            ROS_INFO("%ld", ms_int.count());
             if(!ik_has_solution){
                 ROS_INFO_NAMED("tutorial", "IK SOLUTION NOT FOUND");
                 return;
@@ -209,10 +153,8 @@ class Interface{
                     return;
                 }
             }
-            ROS_INFO("huu");
 
             trajectory_msgs::JointTrajectory traj;
-            // traj.joint_names = {"joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6"};
 
             traj.joint_names = {"axis_1", "axis_2", "axis_3", "axis_4", "axis_5", "axis_6"};
 
