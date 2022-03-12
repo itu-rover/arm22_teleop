@@ -84,7 +84,6 @@ class Interface{
             if (!fetched_current_pose) return;
 
             using namespace std::chrono;
-            current_pose.pose.orientation.w = 1.0;
             current_pose.pose.position.x = current_pose.pose.position.x + data->twist.linear.x;
             current_pose.pose.position.y = current_pose.pose.position.y + data->twist.linear.y;
             current_pose.pose.position.z = current_pose.pose.position.z + data->twist.linear.z;
@@ -109,11 +108,12 @@ class Interface{
             q.normalize();
 
 
-            // tf2::convert(q, current_pose.pose.orientation);
-            transformStamped.transform.rotation.x = 0;
-            transformStamped.transform.rotation.y = 0;
-            transformStamped.transform.rotation.z = 0;
-            transformStamped.transform.rotation.w = 1;
+            tf2::convert(q, current_pose.pose.orientation);
+
+            transformStamped.transform.rotation.x = q.x();
+            transformStamped.transform.rotation.y = q.y();
+            transformStamped.transform.rotation.z = q.z();
+            transformStamped.transform.rotation.w = q.w();
             br.sendTransform(transformStamped);
 
             current_joint_positions = move_group_->getCurrentJointValues(); //15ms
