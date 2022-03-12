@@ -100,7 +100,7 @@ class Interface{
             
             transformStamped.header.stamp = ros::Time::now();
             transformStamped.header.frame_id = "world";
-            transformStamped.child_frame_id = "test";
+            transformStamped.child_frame_id = "target";
             transformStamped.transform.translation.x = current_pose.pose.position.x;
             transformStamped.transform.translation.y = current_pose.pose.position.y;
             transformStamped.transform.translation.z = current_pose.pose.position.z;
