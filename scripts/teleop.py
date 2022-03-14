@@ -111,12 +111,12 @@ while not rospy.is_shutdown():
         delta_y = -data.axes[4] * data.buttons[1]
         delta_z = data.axes[4] * data.buttons[2]
         """
-        msg.twist.linear.x =  deadband(last_data.axes[3], 0.15) * scaling_factor_linear
-        msg.twist.linear.y = deadband(-last_data.axes[4], 0.15) * scaling_factor_linear
-        msg.twist.linear.z = deadband(last_data.axes[1], 0.15) * scaling_factor_linear
-        msg.twist.angular.x = delta_ang_x * scaling_factor_linear
-        msg.twist.angular.y = delta_ang_y * scaling_factor_linear
-        msg.twist.angular.z = delta_ang_z * scaling_factor_linear
+        msg.twist.linear.x =  deadband(last_data.axes[3], 0.15) * scaling_factor_linear * (1-last_data.buttons[0])
+        msg.twist.linear.y = deadband(-last_data.axes[4], 0.15) * scaling_factor_linear * (1-last_data.buttons[0])
+        msg.twist.linear.z = deadband(last_data.axes[1], 0.15) * scaling_factor_linear * (1-last_data.buttons[0])
+        msg.twist.angular.x = deadband(-last_data.axes[1], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5
+        msg.twist.angular.y = deadband(-last_data.axes[4], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5
+        msg.twist.angular.z = deadband(last_data.axes[0], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5
         if (is_resetting):
             try:
                 response = reset_service()
