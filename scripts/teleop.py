@@ -34,7 +34,7 @@ delta_z = 0
 delta_ang_x = 0
 delta_ang_y = 0
 delta_ang_z = 0
-scaling_factor_linear = 0.005
+scaling_factor_linear = 0.001
 scaling_factor_angular = 0.1
 button_1 = 0
 button_2 = 0
@@ -111,12 +111,14 @@ while not rospy.is_shutdown():
         delta_y = -data.axes[4] * data.buttons[1]
         delta_z = data.axes[4] * data.buttons[2]
         """
-        msg.twist.linear.x =  deadband(last_data.axes[3], 0.15) * scaling_factor_linear * (1-last_data.buttons[0])
-        msg.twist.linear.y = deadband(-last_data.axes[4], 0.15) * scaling_factor_linear * (1-last_data.buttons[0])
-        msg.twist.linear.z = deadband(last_data.axes[1], 0.15) * scaling_factor_linear * (1-last_data.buttons[0])
-        msg.twist.angular.x = deadband(-last_data.axes[1], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5
-        msg.twist.angular.y = deadband(-last_data.axes[4], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5
-        msg.twist.angular.z = deadband(last_data.axes[0], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5
+        speed_modifier = (2 * last_data.buttons[4]) + (2 * last_data.buttons[5]) + 1 # 1, 3, 5
+        msg.twist.linear.x =  deadband(last_data.axes[3], 0.15) * scaling_factor_linear * (1-last_data.buttons[0]) * speed_modifier
+        msg.twist.linear.y = deadband(-last_data.axes[4], 0.15) * scaling_factor_linear * (1-last_data.buttons[0]) * speed_modifier
+        msg.twist.linear.z = deadband(last_data.axes[1], 0.15) * scaling_factor_linear * (1-last_data.buttons[0]) * speed_modifier
+        msg.twist.angular.x = deadband(-last_data.axes[1], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5 * speed_modifier
+        msg.twist.angular.y = deadband(-last_data.axes[4], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5 * speed_modifier
+        msg.twist.angular.z = deadband(last_data.axes[0], 0.15) * scaling_factor_linear * last_data.buttons[0] * 5 * speed_modifier
+
         if (is_resetting):
             try:
                 response = reset_service()
