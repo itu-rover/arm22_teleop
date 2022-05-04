@@ -45,7 +45,6 @@ class Interface{
         std::vector<double> current_joint_positions;
         std::vector<double> joint_group_positions;
 
-        std::vector<std::vector<double>> solutions;
         kinematics::KinematicsResult ik_res;
         kinematics::KinematicsQueryOptions options;
         std::vector<geometry_msgs::Pose> poses;
@@ -120,8 +119,6 @@ class Interface{
 
             poses.push_back(current_pose.pose);
             
-            ROS_INFO_NAMED("tutorial", "FOUND %ld solutions.", solutions.size());
-
             bool ik_has_solution = current_state->setFromIK(joint_model_group_, current_pose.pose);
             if(!ik_has_solution){
                 ROS_INFO_NAMED("tutorial", "IK SOLUTION NOT FOUND");
@@ -141,7 +138,7 @@ class Interface{
                                                                                                             current_joint_positions[3],
                                                                                                             current_joint_positions[4],
                                                                                                             current_joint_positions[5]);
-            ROS_INFO_NAMED("tutorial", "Solution found from single function is: %lf %lf %lf %lf %lf %lf",   joint_group_positions[0],
+            ROS_INFO_NAMED("tutorial", "Solution found: %lf %lf %lf %lf %lf %lf",   joint_group_positions[0],
                                                                                                             joint_group_positions[1],
                                                                                                             joint_group_positions[2],
                                                                                                             joint_group_positions[3],
@@ -189,18 +186,14 @@ class Interface{
         fetched_current_pose = true;
 
         current_state = move_group_->getCurrentState();
-        ROS_INFO_NAMED("tutorial", "movegroup connected!");
+        ROS_INFO_NAMED("tutorial", "Movegroup interface is successfully initialized!");
         pub_ = nh_.advertise<trajectory_msgs::JointTrajectory>("/manipulator_controller/command/", 10);
 
-        ROS_INFO_NAMED("tutorial", "publisher connected!");
         sub_ = nh_.subscribe("/servo_server/delta_twist_cmds", 10, &Interface::callback, this);
         service_ = nh_.advertiseService("/servo_server/reset_target", &Interface::reset_target_position, this);
-        ROS_INFO_NAMED("tutorial", "usbscriber conntected!");
 
         ROS_INFO_NAMED("tutorial", "Planning frame: %s", move_group_->getPlanningFrame().c_str());
-
         ROS_INFO_NAMED("tutorial", "End effector link: %s", move_group_->getEndEffectorLink().c_str());
-
         ROS_INFO_NAMED("tutorial", "Available Planning Groups:");
         std::copy(move_group_->getJointModelGroupNames().begin(), move_group_->getJointModelGroupNames().end(),
                 std::ostream_iterator<std::string>(std::cout, ", "));
@@ -215,6 +208,5 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "teleop_server");
 
     Interface();
-
     return 0;
 }
