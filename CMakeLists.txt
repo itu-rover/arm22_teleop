@@ -135,11 +135,6 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(test_node src/test.cpp)
-
-target_link_libraries(test_node
-  ${catkin_LIBRARIES}
-)
 
 add_executable(teleop_server src/teleop_server.cpp)
 
@@ -157,7 +152,6 @@ target_link_libraries(teleop_server
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-scripts/joystick_op.py
 scripts/teleop.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
