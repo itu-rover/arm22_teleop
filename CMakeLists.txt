@@ -153,6 +153,7 @@ target_link_libraries(teleop_server
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
 scripts/teleop.py
+scripts/teleop_sim.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
