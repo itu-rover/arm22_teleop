@@ -149,7 +149,7 @@ class Interface{
                                                                                                             joint_group_positions[5]);
 
             for(int i=0; i < joint_group_positions.size(); i++){
-                if(std::fabs(joint_group_positions[i] - current_joint_positions[i]) > threshold){
+                if(std::fabs(std::fmod(joint_group_positions[i] - current_joint_positions[i], 3.14)) > threshold){
                     return;
                 }
             }
