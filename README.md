@@ -1,4 +1,4 @@
-# Package for 22' manipulator
+# Teleoperation package for 22' manipulator
 
 ## Usage
 
